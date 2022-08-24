@@ -35,7 +35,7 @@ export default class PROXY extends HTML{
 		let response = await result.json();
 		
 		track.title = response.fulltitle || response.title;
-		track.sources = response.formats.filter(function(resource){
+		track.sources = response.formats? response.formats.filter(function(resource){
 			return (
 				resource.resolution == "audio only" &&
 				(resource.protocol == "http" || resource.protocol == "https" || resource.protocol == "http_dash_segments")
@@ -48,7 +48,7 @@ export default class PROXY extends HTML{
 				"asr": resource.asr,
 				"src": resource.fragment_base_url? resource.fragment_base_url: resource.url,
 			}
-		}).reverse();
+		}).reverse(): [];
 		track.src = response.url;
         track.duration = response.duration;
 		track.thumbnail = response.thumbnail;
