@@ -98,6 +98,32 @@ if ('mediaSession' in navigator) {
 	console.log("mediaSession is unsupported");
 }
 
+// ########################### PROGRESS ###########################
+const current_time = document.querySelector("#state-time");
+const current_duration = document.querySelector("#state-duration");
+const progress_bar = document.querySelector("#progress-bar");
+const progress_bar_elapsed = document.querySelector("#progress-bar #elapsed");
+const progress_bar_remaining = document.querySelector("#progress-bar #remaining");
+
+proxy.state.subscribe("time", {callback: function({value: time}){
+    current_time.innerText = new Date(time * 1000).toISOString().substr(14, 5);
+}});
+proxy.state.subscribe("duration", {callback: function({value: time}){
+    current_duration.innerText = new Date(time * 1000).toISOString().substr(14, 5);
+}});
+proxy.state.subscribe("time", {callback: function({value: time}){
+	let duration = proxy.state.duration || 0;
+	if(time > duration || !isFinite(duration)) return;
+	let p = 100*time/duration;
+	progress_bar_elapsed.style.width = String(p)+"%";
+	progress_bar_remaining.style.width = String(100-p)+"%";
+}});
+progress_bar.addEventListener('click', async function(e){
+    const rect = progress_bar.getBoundingClientRect();
+	let p = (e.clientX - rect.left) / rect.width;
+	if(proxy.state.duration && isFinite(proxy.state.duration)) proxy.seek(proxy.state.duration*p);
+});
+
 // ########################### TOP ###########################
 const status_modal = document.querySelector("#status");
 const url_input = document.querySelector("#controls #url");
