@@ -1,0 +1,134 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+html {
+	font-size: 62.5%; /* 1em = 10px */
+}
+body {
+	background: #424242;
+	font: normal 1.6em Helvetica, Arial, sans-serif;
+	line-height: 1.6;
+	color: #E6E6E6;
+	position: relative;
+    
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    
+    margin: 2em;
+    margin-bottom: 256px;
+}
+.modal {
+    width: fit-content;
+	margin: 1em;
+	padding: 2em;
+	background: #303030;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #999999;
+	border-radius: 1em;
+}
+#state {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+}
+#artwork-container {
+    flex-basis: 256px;
+    max-width: 512px;
+    max-height: 512px;
+    align-self: center;
+}
+#state-artwork {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 1em;
+    aspect-ratio: 1;
+}
+#title-container {
+    font-size: 3em;
+    border-style: solid;
+    border-width: 0px;
+    border-bottom-width: 3px;
+}
+#artist-container {
+    font-size: 2.3em;
+}
+
+#status {
+    font-size: 2em;
+    padding: 1em;
+}
+
+footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    align-items: center;
+    justify-content: flex-end;
+	
+	background: #303030;
+	border-style: solid;
+	border-width: 0px;
+	border-top-width: 1px;
+	border-color: #999999;
+}
+
+#controls {
+	font-size: 1.3em;
+	padding: 0.5em;
+}
+#controls #top {
+	width: 100%;
+	
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+#controls #bottom {
+    width: 100%;
+	
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-evenly;
+}
+#controls > * > * {
+	margin: 0.1em;
+	padding: 0.3em;
+}
+#controls > #bottom > img {
+    flex-basis: 2em;
+}
+#controls button {
+	font-size: 1em;
+}
+#controls input {
+	font-size: 1em;
+}
+#url {
+    flex-grow: 1;
+}
+#download-container {
+    font-size: 1.5em;
+}
+.invert {
+    filter: invert(1);
+}
+.highlight {
+    filter: invert(61%) sepia(73%) saturate(2683%) hue-rotate(152deg) brightness(108%) contrast(98%);
+}
+.hidden {
+    display: none !important;
+}
