@@ -24,12 +24,12 @@ export default class PROXY extends HTML{
 	}
 	async load(track){
 		if(track.src !== track.static_url && track._expiration_date > Date.now()) return super.load(track);
-		let result = await fetch(this.constructor.proxy_url,{
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(track),
+        let fetch_url = new URL(this.constructor.proxy_url, window.location.href);
+        fetch_url.searchParams.set("url", track.src);
+		let result = await fetch(fetch_url.toString(),{
+			method: 'GET',
+            mode: 'cors',
+            cache: 'no-store',
 		});
 		if(!result.ok) throw new Error(await result.text());
 		let response = await result.json();
