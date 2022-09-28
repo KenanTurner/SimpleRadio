@@ -9,5 +9,5 @@
 	$result;
 	$args = array_merge(["./yt-dlp_linux","-j","-f 'bestaudio'"], $url);
 	passthru(join(" ",$args),$result);
-	if($result != 0) exit("Error: process exited with code ".$result);
+	if($result != 0) error("Error: process exited with code ".$result);
 ?>
