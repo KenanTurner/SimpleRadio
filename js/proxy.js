@@ -15,9 +15,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import HTML from './html.js';
-export default class PROXY extends HTML{
-	static proxy_url = "/php/youtube-dl.php";
+import Default from './default.js';
+export default class ProxyPlayer extends Default{
+	static proxy_url = "/php/proxy.php";
     constructor(){
 		super();
 		this.state.track = null;

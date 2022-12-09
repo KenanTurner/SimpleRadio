@@ -1,4 +1,4 @@
-import {proxy} from '/js/main.js';
+import {player} from '/js/main.js';
 
 //###################### keyboard controls ######################
 document.addEventListener("keydown", function(e){ //prevent defaults
@@ -11,30 +11,30 @@ let keyEvent = function(e,key_code,f,...args){
 	}, false);
 }
 keyEvent('keyup',' ',function(){
-    proxy.enqueue(proxy.state.paused? "play": "pause");
+    player.enqueue(player.state.paused? "play": "pause");
 });
 keyEvent('keyup','l',function(){
-    proxy.loop(!proxy.state.loop);
+    player.loop(!player.state.loop);
 });
 keyEvent('keyup','m',function(){
-    proxy.mute(!proxy.state.muted);
+    player.mute(!player.state.muted);
 });
-keyEvent('keydown','ArrowRight',proxy.enqueue.bind(proxy,'fastForward',5));
-keyEvent('keydown','ArrowLeft',proxy.enqueue.bind(proxy,'fastForward',-5));
-keyEvent('keyup','0',proxy.enqueue.bind(proxy,'seek',0));
+keyEvent('keydown','ArrowRight',player.enqueue.bind(player,'fastForward',5));
+keyEvent('keydown','ArrowLeft',player.enqueue.bind(player,'fastForward',-5));
+keyEvent('keyup','0',player.enqueue.bind(player,'seek',0));
 
 //###################### Media Session ######################
 if ('mediaSession' in navigator) {
 	console.log("Using mediaSession");
 	const session = window.top.navigator.mediaSession;
-    proxy.state.subscribe("paused",{callback:function({value: is_paused}){
+    player.observer.subscribe("paused",{callback:function({value: is_paused}){
         try{
             session.playbackState = is_paused? "paused": "playing";
         }catch(e){
             console.error("mediaSession failed to set playbackState: ",e);
         }
     }});
-    proxy.state.subscribe("track",{callback:function({value: track}){
+    player.observer.subscribe("track",{callback:function({value: track}){
         try{
             session.metadata = new MediaMetadata({
                 title: track.title,
@@ -48,28 +48,28 @@ if ('mediaSession' in navigator) {
             console.error("mediaSession failed to set metadata: ",e);
         }
     }});
-    proxy.state.subscribe("src",{callback:function({value: src}){
+    player.observer.subscribe("src",{callback:function({value: src}){
         console.log("actionHandler");
         try{
             const actionHandler = function({action, seekOffset, seekTime}){
                 switch(action){
                     case "play":
-                        proxy.play(); // TODO use enqueue instead?
+                        player.play(); // TODO use enqueue instead?
                         break;
                     case "pause":
-                        proxy.pause();
+                        player.pause();
                         break;
                     case "stop":
-                        proxy.stop();
+                        player.stop();
                         break;
                     case "seekbackward":
-                        proxy.fastForward(seekOffset || -5);
+                        player.fastForward(seekOffset || -5);
                         break;
                     case "seekforward":
-                        proxy.fastForward(seekOffset || 5);
+                        player.fastForward(seekOffset || 5);
                         break;
                     case "seekto":
-                        proxy.seek(seekTime);
+                        player.seek(seekTime);
                         break;
                 }
             }
@@ -83,10 +83,10 @@ if ('mediaSession' in navigator) {
             console.error("mediaSession failed to initialize: ",e);
         }
     }, once: true});
-    proxy.state.subscribe("time",{callback:function({value: time}){
+    player.observer.subscribe("time",{callback:function({value: time}){
         try{
             session.setPositionState({
-               duration: proxy.state.duration,
+               duration: player.state.duration,
                playbackRate: 1.0,
                position: time,
             });
@@ -105,14 +105,14 @@ const progress_bar = document.querySelector("#progress-bar");
 const progress_bar_elapsed = document.querySelector("#progress-bar #elapsed");
 const progress_bar_remaining = document.querySelector("#progress-bar #remaining");
 
-proxy.state.subscribe("time", {callback: function({value: time}){
+player.observer.subscribe("time", {callback: function({value: time}){
     current_time.innerText = new Date(time * 1000).toISOString().substr(14, 5);
 }});
-proxy.state.subscribe("duration", {callback: function({value: time}){
+player.observer.subscribe("duration", {callback: function({value: time}){
     current_duration.innerText = new Date(time * 1000).toISOString().substr(14, 5);
 }});
-proxy.state.subscribe("time", {callback: function({value: time}){
-	let duration = proxy.state.duration || 0;
+player.observer.subscribe("time", {callback: function({value: time}){
+	let duration = player.state.duration || 0;
 	if(time > duration || !isFinite(duration)) return;
 	let p = 100*time/duration;
 	progress_bar_elapsed.style.width = String(p)+"%";
@@ -121,7 +121,7 @@ proxy.state.subscribe("time", {callback: function({value: time}){
 progress_bar.addEventListener('click', async function(e){
     const rect = progress_bar.getBoundingClientRect();
 	let p = (e.clientX - rect.left) / rect.width;
-	if(proxy.state.duration && isFinite(proxy.state.duration)) proxy.seek(proxy.state.duration*p);
+	if(player.state.duration && isFinite(player.state.duration)) player.seek(player.state.duration*p);
 });
 
 // ########################### TOP ###########################
@@ -130,16 +130,16 @@ const url_input = document.querySelector("#controls #url");
 const load_btn = document.querySelector("#controls #load");
 const download_btn = document.querySelector("#state-download");
 
-proxy.state.subscribe("src", {callback: function({value: src}){
+player.observer.subscribe("src", {callback: function({value: src}){
     console.log("download_btn"); //TODO my bet is on the "src" subscription (once) [line 51] handler skiping over this callback
-    if(!proxy.state.paused) proxy.enqueue("play");
+    if(!player.state.paused) player.enqueue("play");
     download_btn.disabled = src? false: true;
 }});
 download_btn.addEventListener("click", function(e){
-    if(!proxy.state.src) return alert("Nothing to download!");
+    if(!player.state.src) return alert("Nothing to download!");
     const a = document.createElement('a');
-    a.href = proxy.state.track.src;
-    a.download = proxy.state.track.title;
+    a.href = player.state.track.src;
+    a.download = player.state.track.title;
     a.target = "_blank";
     a.click();
 });
@@ -151,11 +151,11 @@ load_btn.addEventListener("click", async function(e){
 	}catch{
 		return alert("Please enter a valid URL!");
 	}
-    const track = EventTarget.observe({src: url_input.value});
+	const track = {src: url_input.value};
     try{
         status_modal.innerText = "Loading...";
         status_modal.classList.remove("hidden");
-        await proxy.load(track);
+        await player.load(track);
         status_modal.classList.add("hidden");
     }catch(e){
         console.error(e);
@@ -174,29 +174,29 @@ const forward_btn = document.querySelector("#controls #forward");
 const mute_checkbox = document.querySelector("#controls #mute");
 
 loop_checkbox.addEventListener('click', function(e){
-	proxy.loop(!proxy.state.loop);
+	player.loop(!player.state.loop);
 });
-proxy.state.subscribe("loop", {callback: function({value: will_loop}){
+player.observer.subscribe("loop", {callback: function({value: will_loop}){
     loop_checkbox.classList[will_loop? "add": "remove"]("highlight");
 }});
 
-rewind_btn.addEventListener('click',proxy.enqueue.bind(proxy, "fastForward", -10));
+rewind_btn.addEventListener('click',player.enqueue.bind(player, "fastForward", -10));
 
 play_btn.addEventListener('click',function(e){
-    proxy.enqueue(proxy.state.paused? "play": "pause");
+    player.enqueue(player.state.paused? "play": "pause");
 });
-proxy.state.subscribe("paused", {callback: function({value: is_paused}){
+player.observer.subscribe("paused", {callback: function({value: is_paused}){
     play_btn.src = is_paused? "/images/media-play.svg": "/images/media-pause.svg";
 }});
 
-// pause_btn.addEventListener('click',proxy.enqueue.bind(proxy, "pause"));
-// stop_btn.addEventListener('click',proxy.enqueue.bind(proxy, "stop"));
+// pause_btn.addEventListener('click',player.enqueue.bind(player, "pause"));
+// stop_btn.addEventListener('click',player.enqueue.bind(player, "stop"));
 
-forward_btn.addEventListener('click',proxy.enqueue.bind(proxy, "fastForward", 10));
+forward_btn.addEventListener('click',player.enqueue.bind(player, "fastForward", 10));
 
 mute_checkbox.addEventListener('click', function(e){
-	proxy.mute(!proxy.state.muted);
+	player.mute(!player.state.muted);
 });
-proxy.state.subscribe("muted", {callback: function({value: is_muted}){
+player.observer.subscribe("muted", {callback: function({value: is_muted}){
     mute_checkbox.src = is_muted? "/images/volume-off.svg": "/images/volume-high.svg";
 }});

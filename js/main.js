@@ -1,17 +1,17 @@
 import EventTarget from '/js/event-target.js';
-import PROXY from '/js/proxy.js';
+import YoutubePlayer from '/js/youtube.js';
 
-let imports = {EventTarget, PROXY};
+let imports = {EventTarget, YoutubePlayer};
 function map(src,dest={},key=function(k){return k},value=function(v){return v}){for(let k in src){dest[key(k)] = value(src[k]);};return dest;}
 map(imports,window);
 console.log("Imports Loaded");
 
-const proxy = new PROXY();
-proxy.state.subscribe('error',{callback:function(err){
+const player = new YoutubePlayer();
+player.observer.subscribe('error',{callback:function(err){
 	console.error(err);
 }});
-proxy.state.subscribe('all',{callback:function(e){console.debug(e)}});
+player.observer.subscribe('all',{callback:function(e){console.debug(e)}});
 
-export {proxy};
+export {player};
 
-window.proxy = proxy;
+window.player = player;

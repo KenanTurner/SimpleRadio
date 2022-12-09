@@ -76,14 +76,14 @@ export default class EventTarget extends AsyncQueue{
 	}
 	static observe = function(state = {}){
 		let observer = new EventTarget();
-		return new Proxy(state,{
+		let proxy = new Proxy(state,{
 			set: function(target, prop, value, receiver){
 				target[prop] = value;
 				observer.publish(prop,{target,value});
 				return true;
 			},
 			get: function(target, prop, receiver){
-				if(prop in observer) return observer[prop];
+				// if(prop in observer) return observer[prop];
 				if(typeof target[prop] === "function") return function(){ //TODO fix context
 					try{
 						let result = target[prop](...arguments);
