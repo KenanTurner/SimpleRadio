@@ -49,7 +49,6 @@ if ('mediaSession' in navigator) {
         }
     }});
     player.observer.subscribe("src",{callback:function({value: src}){
-        console.log("actionHandler");
         try{
             const actionHandler = function({action, seekOffset, seekTime}){
                 switch(action){
@@ -131,7 +130,6 @@ const load_btn = document.querySelector("#controls #load");
 const download_btn = document.querySelector("#state-download");
 
 player.observer.subscribe("src", {callback: function({value: src}){
-    console.log("download_btn"); //TODO my bet is on the "src" subscription (once) [line 51] handler skiping over this callback
     if(!player.state.paused) player.enqueue("play");
     download_btn.disabled = src? false: true;
 }});
