@@ -7,7 +7,7 @@
     if(empty($url)) error("URL search parameter is required!");
 	
 	$result;
-	$args = array_merge(["./yt-dlp_linux","-j","-f 'bestaudio'"], $url);
+	$args = array_merge(["./yt-dlp_x86.exe","-j","-f 'bestaudio'"], $url);
 	passthru(join(" ",$args),$result);
 	if($result != 0) error("Error: process exited with code ".$result);
 ?>
